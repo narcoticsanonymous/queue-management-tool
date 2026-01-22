@@ -7,13 +7,34 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="matrix"></div>
-    <input id="resetButton" type="button" value="Reset" />
+    <div id="matrix-container">
+        <input id="resetButton" type="button" value="Reset All" />
+        <div id="matrix"></div>
+    </div>
+
+    <div id="queue-container">
+        <h2>Queue</h2>
+        <ul id="queue-list"></ul>
+    </div>
 
     <script>
         const participants = 150;
         const matrix = document.getElementById('matrix');
         const resetButton = document.getElementById('resetButton');
+        const queueList = document.getElementById('queue-list');
+        const queue = [];
+
+        function updateQueueDisplay() {
+            queueList.innerHTML = '';
+            queue.forEach(participant => {
+                const li = document.createElement('li');
+                li.textContent = `Participant ${participant.number}`;
+                if (participant.spoke) {
+                    li.className = 'spoke';
+                }
+                queueList.appendChild(li);
+            });
+        }
 
         // Create participant buttons
         for (let i = 1; i <= participants; i++) {
@@ -26,20 +47,34 @@
 
             button.addEventListener('click', function() {
                 const currentQueue = this.getAttribute('queue');
+                const participantNumber = parseInt(this.value);
                 let color;
 
                 if (currentQueue === '0') {
+                    // Add to queue
                     color = 'orange';
                     this.setAttribute('queue', '1');
+                    queue.push({ number: participantNumber, spoke: false });
                 } else if (currentQueue === '1') {
+                    // Mark as spoke
                     color = 'lightblue';
                     this.setAttribute('queue', '2');
+                    const queueEntry = queue.find(p => p.number === participantNumber);
+                    if (queueEntry) {
+                        queueEntry.spoke = true;
+                    }
                 } else {
+                    // Remove from queue
                     color = 'white';
                     this.setAttribute('queue', '0');
+                    const index = queue.findIndex(p => p.number === participantNumber);
+                    if (index !== -1) {
+                        queue.splice(index, 1);
+                    }
                 }
 
                 this.style.backgroundColor = color;
+                updateQueueDisplay();
             });
 
             matrix.appendChild(button);
@@ -52,6 +87,8 @@
                 button.style.backgroundColor = 'white';
                 button.setAttribute('queue', '0');
             }
+            queue.length = 0;
+            updateQueueDisplay();
         });
     </script>
 </body>
