@@ -105,13 +105,15 @@
 
         // Reset button handler
         resetButton.addEventListener('click', function() {
-            for (let i = 1; i <= participants; i++) {
-                const button = document.getElementById('matrix' + i);
-                button.style.backgroundColor = 'white';
-                button.setAttribute('queue', '0');
+            if (confirm('Are you sure you want to reset all participants and clear the queue?')) {
+                for (let i = 1; i <= participants; i++) {
+                    const button = document.getElementById('matrix' + i);
+                    button.style.backgroundColor = 'white';
+                    button.setAttribute('queue', '0');
+                }
+                queue.length = 0;
+                updateQueueDisplay();
             }
-            queue.length = 0;
-            updateQueueDisplay();
         });
     </script>
 </body>
