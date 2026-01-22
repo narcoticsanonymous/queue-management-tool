@@ -26,6 +26,31 @@ body {
     margin-top: 0;
 }
 
+#queue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#copyButton {
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+#copyButton:hover {
+    background-color: #45a049;
+}
+
+#copyButton.copied {
+    background-color: #2196F3;
+}
+
 #resetButton {
     padding: 10px 20px;
     font-size: 16px;

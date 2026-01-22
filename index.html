@@ -13,7 +13,10 @@
     </div>
 
     <div id="queue-container">
-        <h2>Queue</h2>
+        <div id="queue-header">
+            <h2>Queue</h2>
+            <button id="copyButton">Copy</button>
+        </div>
         <ul id="queue-list"></ul>
     </div>
 
@@ -22,13 +25,14 @@
         const matrix = document.getElementById('matrix');
         const resetButton = document.getElementById('resetButton');
         const queueList = document.getElementById('queue-list');
+        const copyButton = document.getElementById('copyButton');
         const queue = [];
 
         function updateQueueDisplay() {
             queueList.innerHTML = '';
             queue.forEach(participant => {
                 const li = document.createElement('li');
-                li.textContent = `Participant ${participant.number}`;
+                li.textContent = participant.number;
                 if (participant.spoke) {
                     li.className = 'spoke';
                 }
@@ -79,6 +83,25 @@
 
             matrix.appendChild(button);
         }
+
+        // Copy button handler
+        copyButton.addEventListener('click', function() {
+            const queueText = queue.map(p => {
+                const status = p.spoke ? ' (spoke)' : '';
+                return `${p.number}${status}`;
+            }).join('\n');
+
+            navigator.clipboard.writeText(queueText).then(() => {
+                copyButton.textContent = 'Copied!';
+                copyButton.classList.add('copied');
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy';
+                    copyButton.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        });
 
         // Reset button handler
         resetButton.addEventListener('click', function() {
