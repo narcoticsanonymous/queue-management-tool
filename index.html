@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="matrix"></div>
+    <input id="resetButton" type="button" value="Reset" />
+
+    <script>
+        const participants = 150;
+        const matrix = document.getElementById('matrix');
+        const resetButton = document.getElementById('resetButton');
+
+        // Create participant buttons
+        for (let i = 1; i <= participants; i++) {
+            const button = document.createElement('input');
+            button.type = 'button';
+            button.value = i;
+            button.id = 'matrix' + i;
+            button.className = 'participant-button';
+            button.setAttribute('queue', '0');
+
+            button.addEventListener('click', function() {
+                const currentQueue = this.getAttribute('queue');
+                let color;
+
+                if (currentQueue === '0') {
+                    color = 'orange';
+                    this.setAttribute('queue', '1');
+                } else if (currentQueue === '1') {
+                    color = 'lightblue';
+                    this.setAttribute('queue', '2');
+                } else {
+                    color = 'white';
+                    this.setAttribute('queue', '0');
+                }
+
+                this.style.backgroundColor = color;
+            });
+
+            matrix.appendChild(button);
+        }
+
+        // Reset button handler
+        resetButton.addEventListener('click', function() {
+            for (let i = 1; i <= participants; i++) {
+                const button = document.getElementById('matrix' + i);
+                button.style.backgroundColor = 'white';
+                button.setAttribute('queue', '0');
+            }
+        });
+    </script>
+</body>
+</html>
