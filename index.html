@@ -65,6 +65,15 @@
 
         function getDropTargetIndex(e) {
             const items = Array.from(queueList.querySelectorAll('li'));
+            if (items.length === 0) return 0;
+
+            // Check if above the first item
+            const firstRect = items[0].getBoundingClientRect();
+            if (e.clientY < firstRect.top) {
+                return 0;
+            }
+
+            // Check each item's midpoint
             for (let i = 0; i < items.length; i++) {
                 const rect = items[i].getBoundingClientRect();
                 const midpoint = rect.top + rect.height / 2;
@@ -72,6 +81,8 @@
                     return i;
                 }
             }
+
+            // Below all items
             return items.length;
         }
 
@@ -118,7 +129,12 @@
             dropTargetIndex = null;
         }
 
+        function handleListDragEnter(e) {
+            e.preventDefault();
+        }
+
         // Add drag handlers to the queue list container
+        queueList.addEventListener('dragenter', handleListDragEnter);
         queueList.addEventListener('dragover', handleListDragOver);
         queueList.addEventListener('drop', handleListDrop);
 
