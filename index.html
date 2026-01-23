@@ -27,15 +27,118 @@
         const queueList = document.getElementById('queue-list');
         const copyButton = document.getElementById('copyButton');
         const queue = [];
+        let draggedItem = null;
+        let draggedIndex = null;
+        let dropIndicator = null;
+
+        // Create the drop indicator line
+        function createDropIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'drop-indicator';
+            return indicator;
+        }
+
+        // Drag and drop handlers
+        function handleDragStart(e) {
+            draggedItem = this;
+            draggedIndex = parseInt(this.dataset.index);
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            draggedItem = null;
+            draggedIndex = null;
+            dropTargetIndex = null;
+            removeDropIndicator();
+        }
+
+        let dropTargetIndex = null;
+
+        function removeDropIndicator() {
+            if (dropIndicator && dropIndicator.parentNode) {
+                dropIndicator.parentNode.removeChild(dropIndicator);
+            }
+            dropIndicator = null;
+        }
+
+        function getDropTargetIndex(e) {
+            const items = Array.from(queueList.querySelectorAll('li'));
+            for (let i = 0; i < items.length; i++) {
+                const rect = items[i].getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+                if (e.clientY < midpoint) {
+                    return i;
+                }
+            }
+            return items.length;
+        }
+
+        function handleListDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+
+            if (draggedItem === null) return;
+
+            dropTargetIndex = getDropTargetIndex(e);
+
+            removeDropIndicator();
+            dropIndicator = createDropIndicator();
+
+            const items = queueList.querySelectorAll('li');
+            if (dropTargetIndex >= items.length) {
+                queueList.appendChild(dropIndicator);
+            } else {
+                queueList.insertBefore(dropIndicator, items[dropTargetIndex]);
+            }
+        }
+
+        function handleListDrop(e) {
+            e.preventDefault();
+            removeDropIndicator();
+
+            if (draggedIndex === null || dropTargetIndex === null) return;
+
+            let targetIndex = dropTargetIndex;
+
+            // Adjust target index if dragging from before the target
+            if (draggedIndex < targetIndex) {
+                targetIndex--;
+            }
+
+            if (draggedIndex !== targetIndex) {
+                const [movedItem] = queue.splice(draggedIndex, 1);
+                queue.splice(targetIndex, 0, movedItem);
+                updateQueueDisplay();
+            }
+
+            draggedItem = null;
+            draggedIndex = null;
+            dropTargetIndex = null;
+        }
+
+        // Add drag handlers to the queue list container
+        queueList.addEventListener('dragover', handleListDragOver);
+        queueList.addEventListener('drop', handleListDrop);
 
         function updateQueueDisplay() {
             queueList.innerHTML = '';
-            queue.forEach(participant => {
+            queue.forEach((participant, index) => {
                 const li = document.createElement('li');
                 li.textContent = participant.number;
                 if (participant.spoke) {
-                    li.className = 'spoke';
+                    li.classList.add('spoke');
                 }
+
+                // Add drag and drop functionality (only for non-spoke items)
+                li.draggable = !participant.spoke;
+                li.dataset.index = index;
+                if (!participant.spoke) {
+                    li.addEventListener('dragstart', handleDragStart);
+                    li.addEventListener('dragend', handleDragEnd);
+                }
+
                 queueList.appendChild(li);
             });
         }
